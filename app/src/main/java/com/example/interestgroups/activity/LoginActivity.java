@@ -3,10 +3,10 @@ package com.example.interestgroups.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,7 +18,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private EditText emailInput, passwordInput;
     private Button loginButton;
-
+    private TextView signUpButton;
     private FirebaseAuth mAuth;
 
     @Override
@@ -35,17 +35,14 @@ public class LoginActivity extends AppCompatActivity {
         emailInput = findViewById(R.id.editTextEmail);
         passwordInput = findViewById(R.id.editTextPassword);
         loginButton = findViewById(R.id.buttonLogin);
-        signUpButton = findViewById(R.id.buttonSignUp);
+        signUpButton = findViewById(R.id.textViewSignup);
 
-        // Set login button click to go to loginUser function
-        loginButton.setOnClickListener(view -> loginUser());
+        SetUpOnClickListeners();
     }
-
-    private void loginUser() {
+    private void performLogin() {
         // Gets the text from the user inputs
         String email = emailInput.getText().toString();
         String password = passwordInput.getText().toString();
-
         // If the fields are empty sends a short message using a toast
         if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)) {
             Toast.makeText(this, "Email and password are required.", Toast.LENGTH_SHORT).show();
@@ -65,5 +62,16 @@ public class LoginActivity extends AppCompatActivity {
                         Toast.makeText(LoginActivity.this, "Login failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
                     }
                 });
+    }
+
+    private void SetUpOnClickListeners() {
+        // Set login button click to go to loginUser function
+        loginButton.setOnClickListener(view -> performLogin());
+
+        signUpButton.setOnClickListener(view -> {
+            // Navigate to SignupActivity when link is clicked
+            Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
+            startActivity(intent);
+        });
     }
 }
