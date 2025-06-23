@@ -14,7 +14,6 @@ import com.example.interestgroups.R;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class SignupActivity extends AppCompatActivity {
-
     private EditText emailInput, passwordInput, confirmPasswordInput;
     private Button signupButton;
     private FirebaseAuth mAuth;
@@ -58,7 +57,7 @@ public class SignupActivity extends AppCompatActivity {
                 })
                 .addOnFailureListener(error -> {
                     Log.e("signup error", error.toString());
-                            Toast
+                        Toast
                             .makeText(this, "Error creating account", Toast.LENGTH_SHORT).show();
                 });
     }

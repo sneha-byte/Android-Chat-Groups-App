@@ -37,6 +37,9 @@
         <activity android:name=".activity.HomeActivity"
             android:exported="true" />
 
+        <activity android:name=".activity.PostActivity"
+            android:exported="true"/>
+
 
 
     </application>

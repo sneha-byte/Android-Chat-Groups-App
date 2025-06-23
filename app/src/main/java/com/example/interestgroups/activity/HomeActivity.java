@@ -25,8 +25,8 @@ public class HomeActivity extends AppCompatActivity {
 
         // Navigate to Chat screen
         btnChat.setOnClickListener(view -> {
-            //Intent chatIntent = new Intent(HomeActivity.this, ChatActivity.class);
-            //startActivity(chatIntent);
+            Intent chatIntent = new Intent(HomeActivity.this, PostActivity.class);
+            startActivity(chatIntent);
         });
 
         // Navigate to Group List screen
