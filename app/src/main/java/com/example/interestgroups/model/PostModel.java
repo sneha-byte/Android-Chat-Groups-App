@@ -9,7 +9,7 @@ public class PostModel {
     private String content;
 
     @ServerTimestamp
-    private Date time;
+    private long time;
 
     public PostModel() {
         //  empty constructor
@@ -31,11 +31,11 @@ public class PostModel {
         this.content = content;
     }
 
-    public Date getTime() {
+    public long getTime() {
         return time;
     }
 
-    public void setTime(Date time) {
+    public void setTime(long time) {
         this.time = time;
     }
 

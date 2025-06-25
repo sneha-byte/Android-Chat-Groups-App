@@ -63,6 +63,7 @@ public class PostActivity extends AppCompatActivity {
 
         postModel.setUser(currentUser.getEmail());
         postModel.setContent(content);
+        postModel.setTime();
         // Store contains dp and need to refer to which table we send data to
         Store.collection("Chats").add(postModel)
             .addOnSuccessListener(authResult -> {
