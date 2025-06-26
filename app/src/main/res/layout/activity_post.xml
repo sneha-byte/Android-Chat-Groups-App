@@ -23,5 +23,7 @@
         android:layout_height="50dp"
         android:text="Post" />
 
+
 </LinearLayout>
+
 
