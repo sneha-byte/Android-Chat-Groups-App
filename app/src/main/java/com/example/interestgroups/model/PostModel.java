@@ -1,20 +1,22 @@
 package com.example.interestgroups.model;
 
 import com.google.firebase.firestore.ServerTimestamp;
+
+import java.io.Serializable;
 import java.util.Date;
 
-public class PostModel {
+public class PostModel implements Serializable {
     private String user;
     private int likes;
+    private String id;
+
+
     private String content;
 
     @ServerTimestamp
-    private long time;
+    private Date time;
 
-    public PostModel() {
-        //  empty constructor
-    }
-
+    // Getters & Setters
     public String getUser() {
         return user;
     }
@@ -31,12 +33,12 @@ public class PostModel {
         this.content = content;
     }
 
-    public long getTime() {
-        return time;
+    public String getId() {
+        return id;
     }
 
-    public void setTime(long time) {
-        this.time = time;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public int getLikes() {
@@ -45,5 +47,13 @@ public class PostModel {
 
     public void setLikes(int likes) {
         this.likes = likes;
+    }
+
+    public Date getTime() {
+        return time;
+    }
+
+    public void setTime(Date time) {
+        this.time = time;
     }
 }

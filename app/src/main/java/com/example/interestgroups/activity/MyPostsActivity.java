@@ -36,7 +36,13 @@ public class MyPostsActivity extends AppCompatActivity {
 
         rV = findViewById(R.id.myPostsRecyclerView);
         rV.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new PostAdapter(myPosts);
+
+        adapter = new PostAdapter(myPosts, post -> {
+            Intent intent = new Intent(MyPostsActivity.this, PostDetailActivity.class);
+            intent.putExtra("post", post);
+            startActivity(intent);
+        });
+
         rV.setAdapter(adapter);
 
         fetchPosts();
@@ -55,7 +61,10 @@ public class MyPostsActivity extends AppCompatActivity {
                     myPosts.clear();
                     for (DocumentSnapshot dS : posts.getDocuments()) {
                         PostModel pM = dS.toObject(PostModel.class);
-                        myPosts.add(pM);
+                        if (pM != null) {
+                            pM.setId(dS.getId()); // Store Firestore document ID for later update/delete
+                            myPosts.add(pM);
+                        }
                     }
                     adapter.notifyDataSetChanged();
                     Toast.makeText(this, "Data fetched successfully", Toast.LENGTH_SHORT).show();
@@ -64,4 +73,5 @@ public class MyPostsActivity extends AppCompatActivity {
                     Toast.makeText(this, "Failed to get posts", Toast.LENGTH_SHORT).show();
                 });
     }
+
 }

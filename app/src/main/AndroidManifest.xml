@@ -13,35 +13,32 @@
         android:theme="@style/AppTheme"
         tools:targetApi="31">
 
-        <!-- Login Activity -->
-        <activity
-            android:name=".activity.LoginActivity"
-            android:exported="true" />
-
-        <!-- Main Activity -->
+        <!-- Main Entry Point -->
         <activity
             android:name=".activity.MainActivity"
-            android:exported="true" >
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-
         </activity>
 
-        <!-- Signup Activity -->
+        <!-- Auth Activities -->
+        <activity android:name=".activity.LoginActivity"
+            android:exported="true"/>
         <activity android:name=".activity.SignupActivity"
-            android:exported="true" />
+            android:exported="true"/>
 
-        <!-- HomeActivity Activity -->
+        <!-- Core App Screens -->
         <activity android:name=".activity.HomeActivity"
-            android:exported="true" />
-
+            android:exported="true"/>
         <activity android:name=".activity.PostActivity"
+            android:exported="true"/>
+        <activity android:name=".activity.MyPostsActivity"
+            android:exported="true"/>
+        <activity android:name=".activity.PostDetailActivity"
             android:exported="true"/>
 
 
-
     </application>
-
 </manifest>

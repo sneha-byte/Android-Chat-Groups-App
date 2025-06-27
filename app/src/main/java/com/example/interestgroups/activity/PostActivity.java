@@ -60,23 +60,19 @@ public class PostActivity extends AppCompatActivity {
 
     private void createPost(String content) {
         PostModel postModel = new PostModel();
-
         postModel.setUser(currentUser.getEmail());
         postModel.setContent(content);
-        postModel.setTime();
-        // Store contains dp and need to refer to which table we send data to
+
         Store.collection("Chats").add(postModel)
-            .addOnSuccessListener(authResult -> {
-                Toast
-                        .makeText(this, "Successfully Created Post", Toast.LENGTH_SHORT).show();
-                Intent postIntent = new Intent(PostActivity.this, HomeActivity.class);
-                startActivity(postIntent);
-                finish();
-            })
-            .addOnFailureListener(error -> {
-                Log.e("post error", error.toString());
-                Toast
-                        .makeText(this, "Error creating post", Toast.LENGTH_SHORT).show();
-            });
+                .addOnSuccessListener(authResult -> {
+                    Toast.makeText(this, "Successfully Created Post", Toast.LENGTH_SHORT).show();
+                    Intent postIntent = new Intent(PostActivity.this, HomeActivity.class);
+                    startActivity(postIntent);
+                    finish();
+                })
+                .addOnFailureListener(error -> {
+                    Log.e("post error", error.toString());
+                    Toast.makeText(this, "Error creating post", Toast.LENGTH_SHORT).show();
+                });
     }
 }

@@ -1,5 +1,6 @@
 package com.example.interestgroups.adapter;
 
+import android.icu.text.SimpleDateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,11 +12,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.interestgroups.R;
 import com.example.interestgroups.model.PostModel;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
-/**
- * Adapter class that connects a list of PostModel items to the RecyclerView in MyPostsActivity.
- */
+// Adapter class that connects a list of PostModel items to the RecyclerView in MyPostsActivity
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder> {
 
     private final List<PostModel> posts;
@@ -25,30 +26,44 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         this.posts = posts;
     }
 
-    // Called when a new ViewHolder needs to be created (i.e., when scrolling)
+    // Called when a new ViewHolder needs to be created
     @NonNull
     @Override
     public PostViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Inflate the layout for each individual item (from item_post.xml)
+        // Inflate the layout for each individual item
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_post, parent, false);
         return new PostViewHolder(v);
     }
 
-    // Called to bind data to an existing ViewHolder (for a given position)
+    // Called to bind data to an existing ViewHolder
     @Override
     public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
         PostModel post = posts.get(position);
 
-        // Display the email (user who posted)
+        // Display email
         holder.user.setText(post.getUser());
 
-        // Display the post content
+        // Display content
         holder.content.setText(post.getContent());
 
-        // Optionally display likes if available
+        //likes
         holder.likes.setText("Likes: " + post.getLikes());
 
-        // You can format time if needed (if time is added to the model)
+        // Dates
+        Date timestamp = post.getTime();
+        if (timestamp != null) {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            String formattedDate = sdf.format(timestamp);
+            holder.date.setText(formattedDate);
+        } else {
+            holder.date.setText("");
+        }
+
+        holder.itemView.setOnClickListener(v -> listener.onPostClick(post));
+    }
+
+    public interface OnPostClickListener {
+        void onPostClick(PostModel post);
     }
 
     // Total number of items
@@ -57,11 +72,10 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         return posts.size();
     }
 
-    /**
-     * ViewHolder class that holds references to the views for each post item.
-     */
+     // ViewHolder class that holds references to the views for each post item.
     public static class PostViewHolder extends RecyclerView.ViewHolder {
-        TextView user, content, likes;
+        TextView user, content, likes, date;
+
 
         public PostViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -70,6 +84,18 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
             user = itemView.findViewById(R.id.postUser);
             content = itemView.findViewById(R.id.postContent);
             likes = itemView.findViewById(R.id.postLikes);
+            date = itemView.findViewById(R.id.postDate);
         }
+    }
+
+    public interface OnPostClickListener {
+        void onPostClick(PostModel post);
+    }
+
+    private final OnPostClickListener listener;
+
+    public PostAdapter(List<PostModel> posts, OnPostClickListener listener) {
+        this.posts = posts;
+        this.listener = listener;
     }
 }

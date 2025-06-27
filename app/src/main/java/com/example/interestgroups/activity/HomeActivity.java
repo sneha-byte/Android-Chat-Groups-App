@@ -11,7 +11,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 public class HomeActivity extends AppCompatActivity {
 
-    Button btnChat, btnGroups, btnLogout;
+    Button btnChat, btnGroups, btnLogout, btnMyPosts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,6 +20,8 @@ public class HomeActivity extends AppCompatActivity {
 
         // Link buttons
         btnChat = findViewById(R.id.btnChat);
+        btnMyPosts = findViewById(R.id.btnMyPosts);
+
         btnGroups = findViewById(R.id.btnGroups);
         btnLogout = findViewById(R.id.btnLogout);
 
@@ -27,6 +29,11 @@ public class HomeActivity extends AppCompatActivity {
         btnChat.setOnClickListener(view -> {
             Intent chatIntent = new Intent(HomeActivity.this, PostActivity.class);
             startActivity(chatIntent);
+        });
+
+        btnMyPosts.setOnClickListener(view -> {
+            Intent myPosts = new Intent(HomeActivity.this, MyPostsActivity.class);
+            startActivity(myPosts);
         });
 
         // Navigate to Group List screen
