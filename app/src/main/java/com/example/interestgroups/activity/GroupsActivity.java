@@ -1,11 +1,15 @@
 package com.example.interestgroups.activity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+import android.text.TextUtils;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,103 +19,133 @@ import com.example.interestgroups.adapter.GroupsAdapter;
 import com.example.interestgroups.model.GroupModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import android.widget.EditText;
+
 import java.util.List;
 
-public class GroupsActivity extends AppCompatActivity {
+public class GroupsActivity extends AppCompatActivity implements GroupsAdapter.OnGroupActionListener {
 
-    private RecyclerView groupsRecycler;
-    private GroupsAdapter adapter;
-    private ArrayList<GroupModel> groupList = new ArrayList<>();
+    private RecyclerView recyclerGroups;
+    private Button btnCreateGroup;
+    private GroupsAdapter groupsAdapter;
+    private List<GroupModel> groupList = new ArrayList<>();
+
     private FirebaseFirestore db;
+    private FirebaseUser user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_groups);
 
-        groupsRecycler = findViewById(R.id.recyclerGroups);
-        groupsRecycler.setLayoutManager(new LinearLayoutManager(this));
+        recyclerGroups = findViewById(R.id.recyclerGroups);
+        btnCreateGroup = findViewById(R.id.btnCreateGroup);
 
         db = FirebaseFirestore.getInstance();
+        user = FirebaseAuth.getInstance().getCurrentUser();
 
-        adapter = new GroupsAdapter(groupList, new GroupsAdapter.OnGroupActionListener() {
-            @Override
-            public void onGroupClick(GroupModel group) {
-                Intent intent = new Intent(GroupsActivity.this, GroupDetailActivity.class);
-                intent.putExtra("groupId", group.getId());
-                intent.putExtra("groupName", group.getName());
-                startActivity(intent);
-            }
+        groupsAdapter = new GroupsAdapter(groupList, this);
+        recyclerGroups.setLayoutManager(new LinearLayoutManager(this));
+        recyclerGroups.setAdapter(groupsAdapter);
 
-            @Override
-            public void onJoinLeaveClick(GroupModel group, boolean isJoining) {
-                if (isJoining) {
-                    joinGroup(group);
-                } else {
-                    leaveGroup(group);
-                }
-            }
-        });
-        groupsRecycler.setAdapter(adapter);
+        btnCreateGroup.setOnClickListener(v -> showCreateGroupDialog());
 
-        fetchGroups();
+        loadGroups();
     }
 
-    private void fetchGroups() {
+    /**
+     * Show dialog to create a new group
+     */
+    private void showCreateGroupDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Create New Group");
+
+        final View customLayout = getLayoutInflater().inflate(R.layout.dialog_create_group, null);
+        builder.setView(customLayout);
+
+        builder.setPositiveButton("Create", (dialog, which) -> {
+            EditText input = customLayout.findViewById(R.id.editGroupName);
+            String groupName = input.getText().toString().trim();
+
+            if (TextUtils.isEmpty(groupName)) {
+                Toast.makeText(this, "Group name cannot be empty", Toast.LENGTH_SHORT).show();
+            } else {
+                createGroup(groupName);
+            }
+        });
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+        builder.show();
+    }
+
+
+    /**
+     * Create a group in Firestore
+     */
+    private void createGroup(String groupName) {
+        GroupModel group = new GroupModel();
+        group.setName(groupName);
+        group.setMembers(new ArrayList<>());
+        group.getMembers().add(user.getEmail());
+
         db.collection("groups")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        groupList.clear();
-                        for (QueryDocumentSnapshot doc : task.getResult()) {
-                            GroupModel group = doc.toObject(GroupModel.class);
-                            groupList.add(group);
-                        }
-                        adapter.notifyDataSetChanged();
-                    } else {
-                        Toast.makeText(this, "Error fetching groups", Toast.LENGTH_SHORT).show();
-                        Log.e("GroupsActivity", "Fetch failed", task.getException());
+                .add(group)
+                .addOnSuccessListener(docRef -> {
+                    Toast.makeText(this, "Group created!", Toast.LENGTH_SHORT).show();
+                    openGroupDetails(docRef.getId(), groupName);
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Failed to create group", Toast.LENGTH_SHORT).show()
+                );
+    }
+
+    /**
+     * Load all groups from Firestore
+     */
+    private void loadGroups() {
+        db.collection("groups")
+                .addSnapshotListener((value, error) -> {
+                    if (error != null) {
+                        Toast.makeText(GroupsActivity.this, "Error loading groups", Toast.LENGTH_SHORT).show();
+                        return;
                     }
+                    groupList.clear();
+                    for (var doc : value.getDocuments()) {
+                        GroupModel group = doc.toObject(GroupModel.class);
+                        group.setId(doc.getId());
+                        groupList.add(group);
+                    }
+                    groupsAdapter.notifyDataSetChanged();
                 });
     }
 
-    private void joinGroup(GroupModel group) {
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser == null) return;
-
-        List<String> members = group.getMembers() != null ? new ArrayList<>(group.getMembers()) : new ArrayList<>();
-        if (!members.contains(currentUser.getEmail())) {
-            members.add(currentUser.getEmail());
-        }
-        group.setMembers(members);
-
-        db.collection("groups").document(group.getId())
-                .set(group)
-                .addOnSuccessListener(unused -> {
-                    Toast.makeText(this, "Joined " + group.getName(), Toast.LENGTH_SHORT).show();
-                    fetchGroups();
-                })
-                .addOnFailureListener(e -> Toast.makeText(this, "Failed to join group", Toast.LENGTH_SHORT).show());
+    /**
+     * Open Group Detail
+     */
+    private void openGroupDetails(String groupId, String groupName) {
+        Intent intent = new Intent(this, GroupDetailActivity.class);
+        intent.putExtra("groupId", groupId);
+        intent.putExtra("groupName", groupName);
+        startActivity(intent);
     }
 
-    private void leaveGroup(GroupModel group) {
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser == null) return;
+    @Override
+    public void onGroupClick(GroupModel group) {
+        openGroupDetails(group.getId(), group.getName());
+    }
 
-        List<String> members = group.getMembers() != null ? new ArrayList<>(group.getMembers()) : new ArrayList<>();
-        members.remove(currentUser.getEmail());
-        group.setMembers(members);
-
-        db.collection("groups").document(group.getId())
-                .set(group)
-                .addOnSuccessListener(unused -> {
-                    Toast.makeText(this, "Left " + group.getName(), Toast.LENGTH_SHORT).show();
-                    fetchGroups();
-                })
-                .addOnFailureListener(e -> Toast.makeText(this, "Failed to leave group", Toast.LENGTH_SHORT).show());
+    @Override
+    public void onJoinLeaveClick(GroupModel group, boolean isJoining) {
+        // Automatically go to group details after clicking Join
+        if (isJoining) {
+            openGroupDetails(group.getId(), group.getName());
+        }
     }
 }

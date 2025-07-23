@@ -1,4 +1,3 @@
-// PostDetailActivity.java
 package com.example.interestgroups.activity;
 
 import android.os.Bundle;
@@ -18,7 +17,9 @@ public class PostDetailActivity extends AppCompatActivity {
     private EditText contentInput;
     private Button updateBtn, deleteBtn;
     private FirebaseFirestore store;
+
     private PostModel post;
+    private String groupId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,39 +31,55 @@ public class PostDetailActivity extends AppCompatActivity {
         deleteBtn = findViewById(R.id.btnDeletePost);
         store = FirebaseFirestore.getInstance();
 
+        // Get post and groupId from intent
         post = (PostModel) getIntent().getSerializableExtra("post");
+        groupId = getIntent().getStringExtra("groupId");
 
-        if (post != null) {
+        if (post != null && groupId != null) {
             contentInput.setText(post.getContent());
+        } else {
+            Toast.makeText(this, "Post data missing", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
         }
 
-        updateBtn.setOnClickListener(v -> {
-            String updatedContent = contentInput.getText().toString().trim();
-            if (TextUtils.isEmpty(updatedContent)) {
-                Toast.makeText(this, "Content cannot be empty", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            store.collection("Chats").document(post.getId())
-                    .update("content", updatedContent)
-                    .addOnSuccessListener(unused -> {
-                        Toast.makeText(this, "Post updated", Toast.LENGTH_SHORT).show();
-                        finish();
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(this, "Update failed", Toast.LENGTH_SHORT).show();
-                    });
-        });
+        updateBtn.setOnClickListener(v -> updatePost());
+        deleteBtn.setOnClickListener(v -> deletePost());
+    }
 
-        deleteBtn.setOnClickListener(v -> {
-            store.collection("Chats").document(post.getId())
-                    .delete()
-                    .addOnSuccessListener(unused -> {
-                        Toast.makeText(this, "Post deleted", Toast.LENGTH_SHORT).show();
-                        finish();
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(this, "Delete failed", Toast.LENGTH_SHORT).show();
-                    });
-        });
+    private void updatePost() {
+        String updatedContent = contentInput.getText().toString().trim();
+        if (TextUtils.isEmpty(updatedContent)) {
+            Toast.makeText(this, "Content cannot be empty", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        store.collection("groups")
+                .document(groupId)
+                .collection("chats")
+                .document(post.getId())
+                .update("content", updatedContent)
+                .addOnSuccessListener(unused -> {
+                    Toast.makeText(this, "Post updated", Toast.LENGTH_SHORT).show();
+                    finish();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Update failed", Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void deletePost() {
+        store.collection("groups")
+                .document(groupId)
+                .collection("chats")
+                .document(post.getId())
+                .delete()
+                .addOnSuccessListener(unused -> {
+                    Toast.makeText(this, "Post deleted", Toast.LENGTH_SHORT).show();
+                    finish();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Delete failed", Toast.LENGTH_SHORT).show();
+                });
     }
 }

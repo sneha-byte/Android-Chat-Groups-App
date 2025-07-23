@@ -3,8 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="12dp"
-    android:gravity="center_vertical">
+    android:padding="10dp">
 
     <TextView
         android:id="@+id/textGroupName"
@@ -12,13 +11,13 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:text="Group Name"
-        android:textSize="18sp"
+        android:textColor="@color/purple_500"
+        android:textSize="19sp"
         android:textStyle="bold" />
 
     <Button
-        android:id="@+id/btnJoinLeaveGroup"
+        android:id="@+id/btnJoin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Join" />
-
 </LinearLayout>
