@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">InterestGroups</string>
+    <string name = "chat_with_user">Chat With User</string>
 </resources>
+

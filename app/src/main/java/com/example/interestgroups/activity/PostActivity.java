@@ -59,11 +59,20 @@ public class PostActivity extends AppCompatActivity {
     }
 
     private void createPost(String content) {
+        String groupId = getIntent().getStringExtra("groupId");
+        if (groupId == null) {
+            Toast.makeText(this, "Group ID is missing", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         PostModel postModel = new PostModel();
         postModel.setUser(currentUser.getEmail());
         postModel.setContent(content);
 
-        Store.collection("Chats").add(postModel)
+        Store.collection("groups")
+                .document(groupId)
+                .collection("chats")
+                .add(postModel)
                 .addOnSuccessListener(authResult -> {
                     Toast.makeText(this, "Successfully Created Post", Toast.LENGTH_SHORT).show();
                     Intent postIntent = new Intent(PostActivity.this, HomeActivity.class);
@@ -75,4 +84,5 @@ public class PostActivity extends AppCompatActivity {
                     Toast.makeText(this, "Error creating post", Toast.LENGTH_SHORT).show();
                 });
     }
+
 }
