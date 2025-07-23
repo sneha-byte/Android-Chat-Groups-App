@@ -3,55 +3,44 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="12dp">
 
     <TextView
         android:id="@+id/textGroupNameDetail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Group Name"
+        android:textSize="22sp"
         android:textStyle="bold"
-        android:textSize="20sp"
-        android:layout_marginBottom="8dp"/>
-
-    <Button
-        android:id="@+id/btnJoinLeave"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Join Group"
-        android:layout_marginBottom="12dp"/>
+        android:layout_marginTop="14dp"
+        android:paddingBottom="8dp" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerPosts"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:scrollbars="vertical"/>
+        android:layout_weight="1" />
 
-    <!-- New Post Section -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="8dp"
-        android:background="@android:color/darker_gray">
+        android:paddingTop="8dp">
 
         <EditText
             android:id="@+id/editNewPost"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="Write a message..."
-            android:padding="8dp"
-            android:background="@android:color/white"
-            android:inputType="textMultiLine" />
+            android:hint="Write a message"
+            android:maxLines="3"
+            android:minLines="1" />
 
         <Button
             android:id="@+id/btnSendPost"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Send"
-            android:layout_marginLeft="8dp" />
-    </LinearLayout>
+            android:text="Send" />
 
+    </LinearLayout>
 </LinearLayout>

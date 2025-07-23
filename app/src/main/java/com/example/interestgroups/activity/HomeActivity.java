@@ -31,15 +31,15 @@ public class HomeActivity extends AppCompatActivity {
             startActivity(chatIntent);
         });
 
-        btnMyPosts.setOnClickListener(view -> {
-            Intent myPosts = new Intent(HomeActivity.this, MyPostsActivity.class);
-            startActivity(myPosts);
-        });
+//        btnMyPosts.setOnClickListener(view -> {
+//            Intent myPosts = new Intent(HomeActivity.this, MyPostsActivity.class);
+//            startActivity(myPosts);
+//        });
 
         // Navigate to Group List screen
         btnGroups.setOnClickListener(view -> {
-           // Intent groupIntent = new Intent(HomeActivity.this, GroupListActivity.class);
-            //startActivity(groupIntent);
+            Intent groupIntent = new Intent(HomeActivity.this, GroupsActivity.class);
+            startActivity(groupIntent);
         });
 
         // Log out and go back to login screen

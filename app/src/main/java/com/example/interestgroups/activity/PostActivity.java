@@ -66,7 +66,7 @@ public class PostActivity extends AppCompatActivity {
         }
 
         PostModel postModel = new PostModel();
-        postModel.setUser(currentUser.getEmail());
+        postModel.setUserEmail(currentUser.getEmail());
         postModel.setContent(content);
 
         Store.collection("groups")

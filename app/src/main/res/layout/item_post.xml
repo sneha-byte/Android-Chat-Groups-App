@@ -1,54 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="12dp"
+    android:background="?attr/selectableItemBackground"
     android:layout_marginBottom="8dp">
 
-    <!-- Row with user and date -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/postUser"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Posted by..."
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:textColor="#000000"/>
-
-        <TextView
-            android:id="@+id/postDate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Jun 20, 2025"
-            android:textSize="12sp"
-            android:textColor="#777777" />
-    </LinearLayout>
-
-    <!-- Post content -->
     <TextView
-        android:id="@+id/postContent"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Post content goes here"
-        android:textSize="14sp"
-        android:textColor="#444444"
-        android:layout_marginTop="4dp"/>
-
-    <!-- Likes -->
-    <TextView
-        android:id="@+id/postLikes"
+        android:id="@+id/textPostUserEmail"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Likes: 0"
-        android:textSize="12sp"
-        android:textColor="#777777"
-        android:layout_marginTop="6dp"/>
+        android:textStyle="normal"
+        android:textColor="@android:color/black"
+        android:text="user@xyz.com" />
+
+    <TextView
+        android:id="@+id/textPostContent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textStyle="bold"
+        android:textSize="15dp"
+        android:textColor="@android:color/black"
+        android:text="Hello world!" />
+
+    <TextView
+        android:id="@+id/textPostTimestamp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="10sp"
+        android:layout_marginTop="2dp"
+        android:text="Jul 22, 2025 14:30" />
+
+    <TextView
+        android:id="@+id/textPostLikes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/holo_blue_dark"
+        android:text="2 likes"
+        android:layout_marginTop="4dp" />
+
 </LinearLayout>

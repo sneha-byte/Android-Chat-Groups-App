@@ -1,23 +1,28 @@
 package com.example.interestgroups.activity;
 
 import android.os.Bundle;
-import android.util.Log;
+import android.text.TextUtils;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.interestgroups.R;
 import com.example.interestgroups.adapter.PostAdapter;
-import com.example.interestgroups.model.GroupModel;
 import com.example.interestgroups.model.PostModel;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,134 +30,123 @@ import java.util.List;
 public class GroupDetailActivity extends AppCompatActivity {
 
     private TextView textGroupName;
-    private Button btnJoinLeave;
     private RecyclerView recyclerPosts;
+    private EditText editNewPost;
+    private Button btnSendPost;
 
-    private String groupId;
-    private GroupModel group;
     private FirebaseFirestore db;
     private FirebaseUser user;
 
-    private PostAdapter postAdapter;
+    private String groupId;
+    private String groupName;
+
     private List<PostModel> postList = new ArrayList<>();
+    private PostAdapter postAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_detail);
 
+        // Initialize views
         textGroupName = findViewById(R.id.textGroupNameDetail);
-        btnJoinLeave = findViewById(R.id.btnJoinLeave);
         recyclerPosts = findViewById(R.id.recyclerPosts);
+        editNewPost = findViewById(R.id.editNewPost);
+        btnSendPost = findViewById(R.id.btnSendPost);
 
-        groupId = getIntent().getStringExtra("groupId");
-        if (groupId == null) {
-            Toast.makeText(this, "Group ID not found", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
-
+        // Initialize Firebase instances
         db = FirebaseFirestore.getInstance();
         user = FirebaseAuth.getInstance().getCurrentUser();
 
-        setupRecycler();
-        fetchGroupData();
-    }
+        // Get group info from Intent extras
+        groupId = getIntent().getStringExtra("groupId");
+        groupName = getIntent().getStringExtra("groupName");
 
-    private void setupRecycler() {
+        // Show group name
+        textGroupName.setText(groupName);
+
+        // Setup RecyclerView with layout manager and adapter
         recyclerPosts.setLayoutManager(new LinearLayoutManager(this));
-        postAdapter = new PostAdapter(postList);
+        postAdapter = new PostAdapter(postList);  // Only passing list if your PostAdapter constructor accepts just the list
         recyclerPosts.setAdapter(postAdapter);
+
+        // Set click listener to send new post
+        btnSendPost.setOnClickListener(v -> {
+            String content = editNewPost.getText().toString().trim();
+            if (TextUtils.isEmpty(content)) {
+                Toast.makeText(this, "Message cannot be empty", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            addNewPost(content);
+        });
+
+        // Start listening for posts updates
+        listenForPosts();
     }
 
-    private void fetchGroupData() {
-        db.collection("groups").document(groupId)
-                .get()
-                .addOnSuccessListener(document -> {
-                    if (document.exists()) {
-                        group = document.toObject(GroupModel.class);
-                        if (group != null) {
-                            group.setId(document.getId());
-                            textGroupName.setText(group.getName());
-                            updateJoinLeaveButton();
-                            fetchChats();
-                        } else {
-                            Toast.makeText(this, "Error loading group data", Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
-                        Toast.makeText(this, "Group not found", Toast.LENGTH_SHORT).show();
-                        finish();
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Failed to load group", Toast.LENGTH_SHORT).show();
-                    Log.e("GroupDetailActivity", "Fetch failed", e);
-                });
-    }
-
-    private void updateJoinLeaveButton() {
-        if (user == null) return;
-
-        String email = user.getEmail();
-        List<String> members = group.getMembers();
-        if (members == null) members = new ArrayList<>();
-
-        if (members.contains(email)) {
-            btnJoinLeave.setText("Leave Group");
-            btnJoinLeave.setOnClickListener(v -> leaveGroup());
-        } else {
-            btnJoinLeave.setText("Join Group");
-            btnJoinLeave.setOnClickListener(v -> joinGroup());
+    private void listenForPosts() {
+        if (groupId == null) {
+            Toast.makeText(this, "Invalid group ID", Toast.LENGTH_SHORT).show();
+            return;
         }
-    }
 
-    private void joinGroup() {
-        List<String> members = new ArrayList<>(group.getMembers() != null ? group.getMembers() : new ArrayList<>());
-        members.add(user.getEmail());
-        group.setMembers(members);
-
-        db.collection("groups").document(groupId)
-                .set(group)
-                .addOnSuccessListener(unused -> {
-                    Toast.makeText(this, "Joined group", Toast.LENGTH_SHORT).show();
-                    updateJoinLeaveButton();
-                });
-    }
-
-    private void leaveGroup() {
-        List<String> members = new ArrayList<>(group.getMembers() != null ? group.getMembers() : new ArrayList<>());
-        members.remove(user.getEmail());
-        group.setMembers(members);
-
-        db.collection("groups").document(groupId)
-                .set(group)
-                .addOnSuccessListener(unused -> {
-                    Toast.makeText(this, "Left group", Toast.LENGTH_SHORT).show();
-                    updateJoinLeaveButton();
-                });
-    }
-
-    private void fetchChats() {
         db.collection("groups")
                 .document(groupId)
                 .collection("chats")
                 .orderBy("timestamp")
-                .addSnapshotListener((querySnapshot, e) -> {
-                    if (e != null) {
-                        Log.w("GroupDetailActivity", "Listen failed.", e);
-                        return;
-                    }
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                        if (error != null) {
+                            Toast.makeText(GroupDetailActivity.this, "Error loading posts", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        if (value != null) {
+                            for (DocumentChange dc : value.getDocumentChanges()) {
+                                if (dc.getType() == DocumentChange.Type.ADDED) {
+                                    PostModel post = dc.getDocument().toObject(PostModel.class);
+                                    post.setId(dc.getDocument().getId());  // Store Firestore doc ID
+                                    postList.add(post);
 
-                    postList.clear();
-                    if (querySnapshot != null) {
-                        for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
-                            PostModel post = doc.toObject(PostModel.class);
-                            if (post != null) {
-                                postList.add(post);
+                                    postAdapter.notifyItemInserted(postList.size() - 1);
+                                    recyclerPosts.scrollToPosition(postList.size() - 1);
+                                }
+                                // You could add support for MODIFIED and REMOVED here
                             }
                         }
-                        postAdapter.notifyDataSetChanged();
                     }
                 });
+    }
+
+    private void addNewPost(String content) {
+        if (user == null) {
+            Toast.makeText(this, "You must be logged in to post", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (groupId == null) {
+            Toast.makeText(this, "Invalid group ID", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Create new post model object with current user info and content
+        PostModel newPost = new PostModel(
+                user.getUid(),           // user id
+                user.getEmail(),         // user email
+                content,                 // post content
+                0,                       // initial likes count
+                Timestamp.now()          // current time
+        );
+
+        // Add new post to Firestore under this group's chats subcollection
+        db.collection("groups")
+                .document(groupId)
+                .collection("chats")
+                .add(newPost)
+                .addOnSuccessListener(docRef -> {
+                    editNewPost.setText("");  // Clear input
+                    Toast.makeText(this, "Message sent", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "Failed to send message", Toast.LENGTH_SHORT).show());
     }
 }

@@ -10,15 +10,21 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.interestgroups.R;
 import com.example.interestgroups.model.PostModel;
+import com.google.firebase.Timestamp;
 
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Adapter for showing posts in RecyclerView.
+ */
 public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder> {
 
-    private List<PostModel> postList;
+    private final List<PostModel> postList;
 
+    // Constructor
     public PostAdapter(List<PostModel> postList) {
         this.postList = postList;
     }
@@ -26,24 +32,33 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
     @NonNull
     @Override
     public PostViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_post, parent, false);
+        // Inflate layout for single post item
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_post, parent, false);
         return new PostViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull PostViewHolder holder, int position) {
         PostModel post = postList.get(position);
-        holder.textContent.setText(post.getContent());
-        holder.textUserEmail.setText(post.getUserEmail());
-        holder.textLikes.setText(String.valueOf(post.getLikes()));
 
-        if (post.getTimestamp() != null) {
-            String time = new SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
-                    .format(post.getTimestamp().toDate());
-            holder.textTimestamp.setText(time);
+        // Display post content
+        holder.textContent.setText(post.getContent());
+
+        // Display user email who posted
+        holder.textUserEmail.setText(post.getUserEmail());
+
+        // Format and display timestamp nicely
+        Timestamp timestamp = post.getTimestamp();
+        if (timestamp != null) {
+            Date date = timestamp.toDate();
+            SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy hh:mm a", Locale.getDefault());
+            holder.textTimestamp.setText(sdf.format(date));
         } else {
-            holder.textTimestamp.setText("...");
+            holder.textTimestamp.setText("");
         }
+
+        // Optionally, display likes count (you can add a TextView for that if needed)
     }
 
     @Override
@@ -51,15 +66,17 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.PostViewHolder
         return postList.size();
     }
 
+    /**
+     * ViewHolder class caches views for each post item for performance.
+     */
     static class PostViewHolder extends RecyclerView.ViewHolder {
-        TextView textContent, textUserEmail, textLikes, textTimestamp;
+        TextView textContent, textUserEmail, textTimestamp;
 
-        PostViewHolder(View itemView) {
+        public PostViewHolder(@NonNull View itemView) {
             super(itemView);
             textContent = itemView.findViewById(R.id.textPostContent);
-            textUserEmail = itemView.findViewById(R.id.textPostUser);
-            textLikes = itemView.findViewById(R.id.textPostLikes);
-            textTimestamp = itemView.findViewById(R.id.textPostTime);
+            textUserEmail = itemView.findViewById(R.id.textPostUserEmail);
+            textTimestamp = itemView.findViewById(R.id.textPostTimestamp);
         }
     }
 }
