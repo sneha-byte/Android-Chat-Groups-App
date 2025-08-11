@@ -10,7 +10,6 @@ import com.example.interestgroups.R;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class HomeActivity extends AppCompatActivity {
-
     Button btnChat, btnGroups, btnLogout, btnMyPosts;
 
     @Override
@@ -27,19 +26,20 @@ public class HomeActivity extends AppCompatActivity {
 
         // Navigate to Chat screen
         btnChat.setOnClickListener(view -> {
-            Intent chatIntent = new Intent(HomeActivity.this, PostActivity.class);
+            Intent chatIntent = new Intent(HomeActivity.this, ChatActivity.class);
             startActivity(chatIntent);
         });
 
-//        btnMyPosts.setOnClickListener(view -> {
-//            Intent myPosts = new Intent(HomeActivity.this, MyPostsActivity.class);
-//            startActivity(myPosts);
-//        });
 
         // Navigate to Group List screen
         btnGroups.setOnClickListener(view -> {
             Intent groupIntent = new Intent(HomeActivity.this, GroupsActivity.class);
             startActivity(groupIntent);
+        });
+
+        btnMyPosts.setOnClickListener(view -> {
+            Intent myProfile = new Intent(HomeActivity.this, MyProfileActivity.class);
+            startActivity(myProfile);
         });
 
         // Log out and go back to login screen

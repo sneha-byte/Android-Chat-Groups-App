@@ -25,20 +25,22 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:layout_marginBottom="45dp"
         android:paddingTop="8dp">
 
         <EditText
             android:id="@+id/editNewPost"
-            android:layout_width="0dp"
+            android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:hint="Write a message"
             android:maxLines="3"
-            android:minLines="1" />
+            android:minLines="1"
+            android:paddingRight="15dp" />
 
         <Button
             android:id="@+id/btnSendPost"
-            android:layout_width="wrap_content"
+            android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:text="Send" />
 

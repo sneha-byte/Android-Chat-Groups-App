@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "952114552871",
-    "project_id": "interestgroups-sneha",
-    "storage_bucket": "interestgroups-sneha.firebasestorage.app"
+    "project_number": "224179742539",
+    "project_id": "android-group-chat-app",
+    "storage_bucket": "android-group-chat-app.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:952114552871:android:ab411e721af2aa32c52e02",
+        "mobilesdk_app_id": "1:224179742539:android:4c9a534ba26d473c212ace",
         "android_client_info": {
           "package_name": "com.example.interestgroups"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAr1AKPQQ2WXvDeRMLoj4K6CJusyP8kRqI"
+          "current_key": "AIzaSyDgRhcGUdiQ82q5UzGhsbqGdLDrZMTTRIM"
         }
       ],
       "services": {

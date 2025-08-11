@@ -12,6 +12,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.interestgroups.R;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SignupActivity extends AppCompatActivity {
     private EditText emailInput, passwordInput, confirmPasswordInput;
@@ -51,14 +56,31 @@ public class SignupActivity extends AppCompatActivity {
 
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnSuccessListener(authResult -> {
-                    Intent loginIntent = new Intent(SignupActivity.this, LoginActivity.class);
-                    startActivity(loginIntent);
-                    finish();
+                    String uid = mAuth.getCurrentUser().getUid();
+
+                    // Create user data map
+                    Map<String, Object> userData = new HashMap<>();
+                    userData.put("email", email);
+                    userData.put("createdAt", System.currentTimeMillis());
+                    userData.put("groups", new ArrayList<>()); // Empty list initially
+
+                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+                    db.collection("users").document(uid)
+                            .set(userData)
+                            .addOnSuccessListener(aVoid -> {
+                                Toast.makeText(this, "Account created successfully!", Toast.LENGTH_SHORT).show();
+                                Intent loginIntent = new Intent(SignupActivity.this, LoginActivity.class);
+                                startActivity(loginIntent);
+                                finish();
+                            })
+                            .addOnFailureListener(e -> {
+                                Log.e("Firestore Error", e.getMessage());
+                                Toast.makeText(this, "Failed to save user data.", Toast.LENGTH_SHORT).show();
+                            });
                 })
                 .addOnFailureListener(error -> {
                     Log.e("signup error", error.toString());
-                        Toast
-                            .makeText(this, "Error creating account", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Error creating account", Toast.LENGTH_SHORT).show();
                 });
     }
 }
