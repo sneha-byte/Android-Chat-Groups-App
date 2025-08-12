@@ -14,7 +14,7 @@
         android:id="@+id/btnCreateGroup"
         android:layout_width="148dp"
         android:layout_height="55dp"
-        android:layout_marginLeft="10dp"
+        android:layout_centerHorizontal="true"
         android:text="Create Group" />
 
 </RelativeLayout>

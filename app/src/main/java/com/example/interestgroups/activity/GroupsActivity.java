@@ -143,9 +143,31 @@ public class GroupsActivity extends AppCompatActivity implements GroupsAdapter.O
 
     @Override
     public void onJoinLeaveClick(GroupModel group, boolean isJoining) {
-        // Automatically go to group details after clicking Join
         if (isJoining) {
-            openGroupDetails(group.getId(), group.getName());
+            String userEmail = user.getEmail();
+            String userId = user.getUid();
+            String groupId = group.getId();
+
+            // add user email to group's members array
+            DocumentReference groupRef = db.collection("groups").document(groupId);
+            groupRef.update("members", com.google.firebase.firestore.FieldValue.arrayUnion(userEmail))
+                    .addOnSuccessListener(aVoid -> {
+                        // add group ID to user's groups array in 'users' collection
+                        DocumentReference userRef = db.collection("users").document(userId);
+                        userRef.update("groups", com.google.firebase.firestore.FieldValue.arrayUnion(groupId))
+                                .addOnSuccessListener(aVoid2 -> {
+                                    Toast.makeText(this, "Joined group successfully", Toast.LENGTH_SHORT).show();
+                                    // Open group details after successful join
+                                    openGroupDetails(groupId, group.getName());
+                                })
+                                .addOnFailureListener(e -> {
+                                    Toast.makeText(this, "Failed to update user groups: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                });
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(this, "Failed to join group: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    });
         }
     }
+
 }
