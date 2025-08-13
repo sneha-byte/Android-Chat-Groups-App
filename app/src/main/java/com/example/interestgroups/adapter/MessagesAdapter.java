@@ -9,63 +9,54 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.interestgroups.R;
-import com.example.interestgroups.model.MessageModel;
+import com.example.interestgroups.model.Message;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.List;
 
-public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MessageViewHolder> {
+public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
 
-    private List<MessageModel> messageList;
-    private String currentUserId;
+    private List<Message> messages;
+    private FirebaseAuth auth;
 
-    public MessagesAdapter(List<MessageModel> messageList, String currentUserId) {
-        this.messageList = messageList;
-        this.currentUserId = currentUserId;
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        MessageModel message = messageList.get(position);
-        if (message.getSenderId().equals(currentUserId)) {
-            return 1; // Sent message
-        } else {
-            return 0; // Received message
-        }
+    public MessageAdapter(List<Message> messages, FirebaseAuth auth) {
+        this.messages = messages;
+        this.auth = auth;
     }
 
     @NonNull
     @Override
     public MessageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view;
-        if (viewType == 1) {
-            // Sent message layout (right aligned)
-            view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_message_sent, parent, false);
-        } else {
-            // Received message layout (left aligned)
-            view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_message_received, parent, false);
-        }
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_message, parent, false);
         return new MessageViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull MessageViewHolder holder, int position) {
-        MessageModel message = messageList.get(position);
-        holder.textViewMessage.setText(message.getText());
+        Message message = messages.get(position);
+
+        // Align message based on sender
+        if (message.getSenderId().equals(auth.getCurrentUser().getUid())) {
+            holder.textMessage.setBackgroundResource(R.drawable.bg_message_sent);
+        } else {
+            holder.textMessage.setBackgroundResource(R.drawable.bg_message_received);
+        }
+
+        holder.textMessage.setText(message.getText());
     }
 
     @Override
     public int getItemCount() {
-        return messageList.size();
+        return messages.size();
     }
 
     static class MessageViewHolder extends RecyclerView.ViewHolder {
-        TextView textViewMessage;
+        TextView textMessage;
 
         public MessageViewHolder(@NonNull View itemView) {
             super(itemView);
-            textViewMessage = itemView.findViewById(R.id.textViewMessage);
+            textMessage = itemView.findViewById(R.id.textMessage);
         }
     }
 }

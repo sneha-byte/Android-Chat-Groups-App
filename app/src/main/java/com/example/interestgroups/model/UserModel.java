@@ -1,29 +1,34 @@
 package com.example.interestgroups.model;
 
-public class User {
+public class UserModel {
     private String uid;
-    private String email;
     private String displayName;
+    private String email;
     private String profilePicUrl;
 
-    public User() {} // Firestore requires empty constructor
+    // Empty constructor needed for Firestore
+    public UserModel() {}
 
-    public User(String uid, String email, String displayName, String profilePicUrl) {
+    public UserModel(String uid, String displayName, String email, String profilePicUrl) {
         this.uid = uid;
-        this.email = email;
         this.displayName = displayName;
+        this.email = email;
         this.profilePicUrl = profilePicUrl;
     }
 
-    public String getUid() { return uid; }
-    public void setUid(String uid) { this.uid = uid; }
+    public String getUid() {
+        return uid;
+    }
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public String getDisplayName() {
+        return displayName;
+    }
 
-    public String getDisplayName() { return displayName; }
-    public void setDisplayName(String displayName) { this.displayName = displayName; }
+    public String getEmail() {
+        return email;
+    }
 
-    public String getProfilePicUrl() { return profilePicUrl; }
-    public void setProfilePicUrl(String profilePicUrl) { this.profilePicUrl = profilePicUrl; }
+    public String getProfilePicUrl() {
+        return profilePicUrl;
+    }
 }

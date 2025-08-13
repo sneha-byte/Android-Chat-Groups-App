@@ -1,4 +1,4 @@
-package com.example.interestgroups.activity;
+package com.example.interestgroups.adapter;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,11 +22,11 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         void onChatClick(User user);
     }
 
-    private List<User> userList;
+    private List<User> users;
     private OnChatClickListener listener;
 
-    public UserAdapter(List<User> userList, OnChatClickListener listener) {
-        this.userList = userList;
+    public UserAdapter(List<User> users, OnChatClickListener listener) {
+        this.users = users;
         this.listener = listener;
     }
 
@@ -34,50 +34,46 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     @Override
     public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_user, parent, false); // layout for each user row
+                .inflate(R.layout.item_user, parent, false);
         return new UserViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
-        User user = userList.get(position);
+        User user = users.get(position);
 
-        holder.textViewName.setText(user.getDisplayName());
-        holder.textViewEmail.setText(user.getEmail());
+        holder.name.setText(user.getDisplayName());
+        holder.email.setText(user.getEmail());
 
-        // Load profile picture if available
+        // Load profile picture
         if (user.getProfilePicUrl() != null && !user.getProfilePicUrl().isEmpty()) {
             Glide.with(holder.itemView.getContext())
                     .load(user.getProfilePicUrl())
-                    .into(holder.imageViewProfile);
+                    .into(holder.profileImage);
         } else {
-            holder.imageViewProfile.setImageResource(R.drawable.ic_default_profile); // fallback image
+            holder.profileImage.setImageResource(R.drawable.default_profile);
         }
 
-        // Chat button click listener
-        holder.buttonChat.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onChatClick(user);
-            }
-        });
+        // Chat button click
+        holder.btnChat.setOnClickListener(v -> listener.onChatClick(user));
     }
 
     @Override
     public int getItemCount() {
-        return userList.size();
+        return users.size();
     }
 
     static class UserViewHolder extends RecyclerView.ViewHolder {
-        ImageView imageViewProfile;
-        TextView textViewName, textViewEmail;
-        Button buttonChat;
+        TextView name, email;
+        ImageView profileImage;
+        Button btnChat;
 
         public UserViewHolder(@NonNull View itemView) {
             super(itemView);
-            imageViewProfile = itemView.findViewById(R.id.imageViewProfile);
-            textViewName = itemView.findViewById(R.id.textViewName);
-            textViewEmail = itemView.findViewById(R.id.textViewEmail);
-            buttonChat = itemView.findViewById(R.id.buttonChat);
+            name = itemView.findViewById(R.id.textDisplayName);
+            email = itemView.findViewById(R.id.textEmail);
+            profileImage = itemView.findViewById(R.id.imageProfile);
+            btnChat = itemView.findViewById(R.id.btnChat);
         }
     }
 }

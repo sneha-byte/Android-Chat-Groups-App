@@ -1,8 +1,6 @@
 package com.example.interestgroups.activity;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,8 +17,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UsersListActivity extends AppCompatActivity {
-
+public class UsersActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private UserAdapter userAdapter;
     private List<User> userList;
@@ -31,29 +28,21 @@ public class UsersListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_users_list);
+        setContentView(R.layout.activity_users);
 
         recyclerView = findViewById(R.id.recyclerViewUsers);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
         userList = new ArrayList<>();
+
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
 
-        // Adapter takes a listener that will handle "Chat" button clicks
-        userAdapter = new UserAdapter(userList, user -> {
-            // When user clicks "Chat", open ChatActivity and pass the other user's UID
-            Intent intent = new Intent(UsersListActivity.this, ChatActivity.class);
-            intent.putExtra("otherUserId", user.getUid());
-            startActivity(intent);
-        });
-
+        userAdapter = new UserAdapter(this, userList);
         recyclerView.setAdapter(userAdapter);
 
         loadUsers();
     }
 
-    // Load all users except the current logged-in user
     private void loadUsers() {
         String currentUserId = auth.getCurrentUser().getUid();
         CollectionReference usersRef = db.collection("users");
@@ -62,13 +51,12 @@ public class UsersListActivity extends AppCompatActivity {
             userList.clear();
             for (var doc : queryDocumentSnapshots) {
                 User user = doc.toObject(User.class);
-                if (!user.getUid().equals(currentUserId)) { // skip current user
+                // Exclude current logged-in user from the list
+                if (!user.getUid().equals(currentUserId)) {
                     userList.add(user);
                 }
             }
             userAdapter.notifyDataSetChanged();
-        }).addOnFailureListener(e ->
-                Toast.makeText(this, "Failed to load users", Toast.LENGTH_SHORT).show()
-        );
+        });
     }
 }

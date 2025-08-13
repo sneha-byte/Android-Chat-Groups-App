@@ -42,6 +42,10 @@
             android:exported="true"/>
         <activity android:name=".activity.GroupDetailActivity"
             android:exported="true"/>
+        <activity android:name=".activity.UsersActivity"
+            android:exported="true"/>
+        <activity android:name=".activity.UserListActivity"
+            android:exported="true" />
 
 
     </application>
