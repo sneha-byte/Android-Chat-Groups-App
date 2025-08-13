@@ -34,7 +34,7 @@
             android:exported="true"/>
         <activity android:name=".activity.PostActivity"
             android:exported="true"/>
-        <activity android:name=".activity.MyPostsActivity"
+        <activity android:name=".activity.ChatActivity"
             android:exported="true"/>
         <activity android:name=".activity.PostDetailActivity"
             android:exported="true"/>
